@@ -6,7 +6,7 @@
 
 A Claude Code skill that reads your PR and writes short study notes on the concepts underneath it.
 
-<img src="https://img.shields.io/badge/Claude%20Code-skill-8250df" alt="Claude Code skill">
+<img src="https://img.shields.io/badge/Claude%20Code-plugin-1e5f46" alt="Claude Code plugin">
 <img src="https://img.shields.io/badge/output-PR%20comment%20%7C%20Markdown-2da44e" alt="Output: PR comment or Markdown">
 <img src="https://img.shields.io/badge/language-auto-0969da" alt="Language: auto">
 
