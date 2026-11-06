@@ -86,6 +86,15 @@ Every section is a bullet list, except Trade-offs (a small table).
 | `summary` | Concept, Principle, Trade-offs, Alternatives |
 | `detailed` | summary + Common pitfalls + Further reading |
 
+PR comment layout (see `templates/pr-comment.md`):
+- Header `### 📚 Dev knowledge in this PR`, then one line: category tags + concept count.
+- Each concept in a collapsed `<details>`. `<summary>` = **title** — a one-line hook (under ~8 words),
+  so the collapsed comment reads as a short list.
+- Inside: a blank line and `<br>` after `<summary>` (GitHub needs the blank line to render Markdown),
+  then the sections, then `<sub>📄 file paths</sub>` last.
+- Footer: one `<sub>` line. No other headings, emoji or decoration.
+- Docs files don't use `<details>`; sections are `##` headings.
+
 Docs files are always written at `detailed` depth; `--depth` applies to the PR comment.
 Strip secrets, tokens and internal hostnames.
 

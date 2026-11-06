@@ -90,6 +90,8 @@ Notes, not prose. Each concept:
 | Common pitfalls | bullets | | | ✓ |
 | Further reading | links | | | ✓ |
 
+PR comments are collapsed by default: each concept is a `<details>` block whose summary line is the title plus a one-line hook. Closed, the comment is a 3-line list; reviewers open what they care about.
+
 Examples: [`pr-comment.md`](../skills/dev-knowledge-recap/templates/pr-comment.md), [`knowledge-doc.md`](../skills/dev-knowledge-recap/templates/knowledge-doc.md).
 
 ## Storage

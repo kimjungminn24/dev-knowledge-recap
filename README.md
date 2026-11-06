@@ -27,7 +27,15 @@ Docs go to `docs/dev-knowledge/<topic>.md`. When a topic shows up again in a lat
 
 ## Example
 
-See [`templates/pr-comment.md`](skills/dev-knowledge-recap/templates/pr-comment.md) and [`templates/knowledge-doc.md`](skills/dev-knowledge-recap/templates/knowledge-doc.md).
+From a real deploy PR (systemd, health checks, rollback). Collapsed by default:
+
+<img src="docs/images/collapsed.png" width="600">
+
+Expanded:
+
+<img src="docs/images/expanded.png" width="600">
+
+Templates: [`templates/pr-comment.md`](skills/dev-knowledge-recap/templates/pr-comment.md) and [`templates/knowledge-doc.md`](skills/dev-knowledge-recap/templates/knowledge-doc.md).
 
 ## Install
 
