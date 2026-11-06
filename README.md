@@ -1,25 +1,38 @@
 # dev-knowledge-recap
 
-AI랑 같이 작업한 PR에서, 리뷰하는 사람도 알아두면 좋을 개발 지식을 뽑아서 PR 댓글이나 `docs/`에 남겨주는 Claude Code 스킬입니다.
+A Claude Code skill that writes up the CS and engineering concepts behind a PR's code: the principle, trade-offs and alternatives. Output goes to a PR comment, Markdown files under `docs/`, or both.
 
-코드 리뷰나 변경 요약이 아니라, 이 PR에서 실제로 쓰인 개념(예: 왜 `Promise.all`을 썼는지, 캐시 무효화를 어떻게 처리했는지)만 정리합니다.
+It doesn't review the code or summarize the change. If a PR adds `Promise.all`, you get a note on concurrency vs. parallelism and the event loop, not a description of what `Promise.all` does.
 
-## 사용법
+Built for the case where AI wrote most of the code and you want to understand what's underneath it.
+
+## Usage
 
 ```
-/dev-knowledge-recap --target both --lang ko --depth summary
+/dev-knowledge-recap
+/dev-knowledge-recap --target docs --depth detailed
 ```
 
-- `--target`: `pr`(PR 댓글), `docs`(문서 저장), `both`. 생략하면 실행할 때 어디에 남길지 물어봅니다.
-- `--lang`: `ko`, `en`
-- `--depth`: `detailed`, `summary`, `concepts`
+| Option | Values | Default |
+|---|---|---|
+| `--target` | `pr`, `docs`, `both` | asks |
+| `--lang` | any language code | language of the PR, else `en` |
+| `--depth` | `concepts`, `summary`, `detailed` | `summary` |
+| `--max` | 1–10 | 3 |
+| `--dry-run` | | off |
 
-PR 댓글은 리뷰할 때 같이 보는 용도고, `docs/dev-knowledge/`에 쌓이는 문서는 나중에 찾아보거나 온보딩할 때 쓰는 용도입니다. 같은 개념이 다른 PR에서 또 나오면 새 파일을 만들지 않고 기존 문서에 PR 링크만 추가합니다.
+Defaults can be set in `.dev-knowledge-recap.yml` at the repo root.
 
-## 설치
+Docs go to `docs/dev-knowledge/<topic>.md`. When a topic shows up again in a later PR, the existing file gets the PR added to it instead of a new file being created.
 
-`skills/dev-knowledge-recap/` 폴더를 프로젝트의 `.claude/skills/`에 복사하면 됩니다.
+## Example
 
-## 설계
+See [`templates/pr-comment.md`](skills/dev-knowledge-recap/templates/pr-comment.md) and [`templates/knowledge-doc.md`](skills/dev-knowledge-recap/templates/knowledge-doc.md).
+
+## Install
+
+Copy `skills/dev-knowledge-recap/` into your project's `.claude/skills/` (or `~/.claude/skills/`).
+
+## Design
 
 [docs/DESIGN.md](docs/DESIGN.md)
