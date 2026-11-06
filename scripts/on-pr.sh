@@ -4,6 +4,8 @@
 # Turn it off with `auto: false` in .dev-knowledge-recap.yml or
 # DEV_KNOWLEDGE_RECAP_AUTO=off in the environment.
 
+set -uo pipefail
+
 input=$(cat)
 
 case "${DEV_KNOWLEDGE_RECAP_AUTO:-on}" in
@@ -22,8 +24,18 @@ if [ -f "$root/.dev-knowledge-recap.yml" ] &&
   exit 0
 fi
 
-# No URL means the PR was not created (or the command failed), so do nothing.
-url=$(printf '%s' "$input" | grep -oE 'https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+' | head -n 1)
+# No URL means the PR was not created, so do nothing.
+# Any host is accepted so GitHub Enterprise URLs work too.
+url=$(printf '%s' "$input" | grep -oE 'https://[A-Za-z0-9.-]+/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/pull/[0-9]+' | head -n 1 || true)
 [ -z "$url" ] && exit 0
+
+# Fire once per PR. Claude sometimes retries or uses both gh and the MCP tool,
+# and a second nudge would write the same notes twice.
+seen_dir="${TMPDIR:-/tmp}/dev-knowledge-recap"
+seen="$seen_dir/$(printf '%s' "$url" | tr -c 'A-Za-z0-9' '_')"
+mkdir -p "$seen_dir" 2>/dev/null || true
+if ! (set -o noclobber; : > "$seen") 2>/dev/null; then
+  exit 0
+fi
 
 printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"A pull request was just created: %s. Before you reply to the user, run the /dev-knowledge-recap:recap skill with --auto --pr %s."}}\n' "$url" "$url"
