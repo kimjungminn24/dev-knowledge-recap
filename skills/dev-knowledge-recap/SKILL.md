@@ -69,11 +69,22 @@ Keep the top `--max`. If nothing worthwhile is left, publish nothing and say so.
 Notes, not prose. No conversational tone, no "you asked…", no session transcripts.
 Use `templates/pr-comment.md` and `templates/knowledge-doc.md`.
 
-| depth | per concept |
+Every section is a bullet list, except Trade-offs (a small table).
+
+| Section | Content |
 |---|---|
-| `concepts` | name + one-line definition |
-| `summary` | Principle (2–4 bullets), Trade-offs (pros/cons), Alternatives (table) |
-| `detailed` | summary + Common pitfalls + Further reading (official docs / well-known references only) |
+| Concept | 1–2 bullets: what it is |
+| Principle | 2–3 bullets: how it works, and how this code uses it |
+| Trade-offs | pros / cons table, 1–2 rows |
+| Alternatives | up to 2 bullets: `name`: when to use it |
+| Common pitfalls | bullets (`detailed` only) |
+| Further reading | official docs / well-known references (`detailed` only) |
+
+| depth | sections |
+|---|---|
+| `concepts` | Concept |
+| `summary` | Concept, Principle, Trade-offs, Alternatives |
+| `detailed` | summary + Common pitfalls + Further reading |
 
 Docs files are always written at `detailed` depth; `--depth` applies to the PR comment.
 Strip secrets, tokens and internal hostnames.

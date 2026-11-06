@@ -81,14 +81,14 @@ No numeric scoring. It's a priority order the model follows, not something code 
 
 Notes, not prose. Each concept:
 
-| Section | `concepts` | `summary` | `detailed` |
-|---|---|---|---|
-| One-line definition | ✓ | | |
-| Principle (2–4 bullets) | | ✓ | ✓ |
-| Trade-offs (pros / cons table) | | ✓ | ✓ |
-| Alternatives (option / use-when table) | | ✓ | ✓ |
-| Common pitfalls | | | ✓ |
-| Further reading | | | ✓ |
+| Section | Format | `concepts` | `summary` | `detailed` |
+|---|---|---|---|---|
+| Concept | 1–2 bullets | ✓ | ✓ | ✓ |
+| Principle | 2–3 bullets | | ✓ | ✓ |
+| Trade-offs | pros / cons table, 1–2 rows | | ✓ | ✓ |
+| Alternatives | up to 2 bullets, `name`: when | | ✓ | ✓ |
+| Common pitfalls | bullets | | | ✓ |
+| Further reading | links | | | ✓ |
 
 Examples: [`pr-comment.md`](../skills/dev-knowledge-recap/templates/pr-comment.md), [`knowledge-doc.md`](../skills/dev-knowledge-recap/templates/knowledge-doc.md).
 

@@ -1,40 +1,39 @@
 ---
-slug: concurrency-vs-parallelism
-title: Concurrency vs. Parallelism
-category: concurrency
-aliases: [event loop, Promise.all]
+slug: graceful-shutdown
+title: Signals and graceful shutdown
+category: os
+aliases: [SIGTERM, SIGKILL, kill -9, exit code 143]
 created: 2026-11-06
 updated: 2026-11-06
 ---
 
-# Concurrency vs. Parallelism
+# Signals and graceful shutdown
+
+## Concept
+- A signal is a notification the OS sends to a process
+- SIGTERM: clean up and exit. SIGKILL: die immediately
 
 ## Principle
-- Concurrency: tasks overlap in time by interleaving. Parallelism: tasks run simultaneously on separate cores.
-- JS has a single call stack. I/O is delegated to the runtime (libuv / browser); completed work is queued and the event loop runs callbacks when the stack is empty.
-- So concurrent I/O cuts wall-clock time, but CPU-bound JS still runs one piece at a time.
+- SIGKILL can't be caught or ignored; the kernel ends the process
+- SIGTERM can be handled: the JVM runs shutdown hooks, Spring closes pools and finishes work
+- Exit code after a fatal signal is 128 + N (SIGTERM 15 -> 143, SIGKILL 9 -> 137)
 
 ## Trade-offs
 | Pros | Cons |
 |---|---|
-| Lower latency for independent I/O | `Promise.all` is fail-fast |
-| No shared-memory races between JS code | Long sync work blocks everything |
+| No half-written state | Slower stop; a hung app still needs SIGKILL |
 
 ## Alternatives
-| Option | Use when |
-|---|---|
-| Sequential `await` | Steps depend on each other |
-| `Promise.allSettled` | Partial failure is acceptable |
-| Concurrency limit (`p-limit`) | Large fan-out |
-| Worker threads / Web Workers | CPU-bound work |
+- `server.shutdown=graceful`: finish in-flight requests before exiting
+- `TimeoutStopSec`: cap how long a graceful stop may take
 
 ## Common pitfalls
-- `await` inside a `for` loop serializes requests that could overlap.
-- Unbounded `Promise.all` over thousands of items can exhaust sockets or hit rate limits.
+- Using `kill -9` by default in deploy scripts
+- Treating exit code 143 as a crash in monitoring
 
 ## Further reading
-- MDN: Event loop
-- Rob Pike, "Concurrency is not Parallelism"
+- `man 7 signal`
+- Spring Boot docs: Graceful Shutdown
 
 ## Seen in this project
-- #128 — `src/api/user.ts`
+- #209 — `deploy/pik-one-backend.service`
