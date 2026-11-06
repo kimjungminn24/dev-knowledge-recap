@@ -50,30 +50,44 @@ It goes one level below the API. `Promise.all` becomes a note on concurrency and
 
 ## Install
 
-Copy the skill into your project:
+In Claude Code, add the marketplace and install the plugin:
 
-```bash
-mkdir -p .claude/skills && cp -r skills/dev-knowledge-recap .claude/skills/
+```
+/plugin marketplace add kimjungminn24/dev-knowledge-recap
+/plugin install dev-knowledge-recap@dev-knowledge-recap
 ```
 
-Or install it for every project:
+On recent versions of Claude Code this also works as one line:
+
+```
+/plugin install dev-knowledge-recap --marketplace kimjungminn24/dev-knowledge-recap
+```
+
+<details>
+<summary>Install without the plugin system</summary>
+<br>
+
+Copy the skill folder into your project, or into `~/.claude/skills/` to use it everywhere. It then runs as `/recap`.
 
 ```bash
-mkdir -p ~/.claude/skills && cp -r skills/dev-knowledge-recap ~/.claude/skills/
+git clone https://github.com/kimjungminn24/dev-knowledge-recap
+mkdir -p .claude/skills && cp -r dev-knowledge-recap/skills/recap .claude/skills/
 ```
+
+</details>
 
 ## Usage
 
 Run it on a branch with an open PR:
 
 ```
-/dev-knowledge-recap
+/dev-knowledge-recap:recap
 ```
 
 It asks where to put the notes: a PR comment, Markdown files in `docs/`, or both. To skip the question, pass it:
 
 ```
-/dev-knowledge-recap --target docs --depth detailed
+/dev-knowledge-recap:recap --target docs --depth detailed
 ```
 
 | Option | Values | Default |

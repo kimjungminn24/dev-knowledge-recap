@@ -1,11 +1,11 @@
 ---
-name: dev-knowledge-recap
-description: Writes up the CS concepts behind the current PR's code as short study notes, posted as a PR comment or saved under docs/. Use for /dev-knowledge-recap.
+name: recap
+description: Writes up the CS concepts behind the current PR's code as short study notes, posted as a PR comment or saved under docs/. Use for /recap or when asked for the CS concepts behind a PR.
 argument-hint: "[--target pr|docs|both] [--lang auto|en|ko] [--depth concepts|summary|detailed] [--max N] [--dry-run]"
 allowed-tools: Bash(git diff *) Bash(git log *) Bash(git rev-parse *) Bash(git merge-base *)
 ---
 
-# dev-knowledge-recap
+# recap
 
 Write up the CS and engineering knowledge underneath this PR's code.
 

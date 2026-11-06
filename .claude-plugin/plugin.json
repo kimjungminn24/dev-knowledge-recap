@@ -1,0 +1,10 @@
+{
+  "name": "dev-knowledge-recap",
+  "version": "0.1.0",
+  "description": "Writes up the CS concepts behind your PR's code as short study notes, as a PR comment or Markdown files.",
+  "author": { "name": "jess24" },
+  "homepage": "https://github.com/kimjungminn24/dev-knowledge-recap",
+  "repository": "https://github.com/kimjungminn24/dev-knowledge-recap",
+  "license": "MIT",
+  "keywords": ["learning", "pull-request", "cs", "code-review", "docs"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "dev-knowledge-recap",
+  "owner": { "name": "kimjungminn24" },
+  "plugins": [
+    {
+      "name": "dev-knowledge-recap",
+      "source": "./",
+      "description": "Writes up the CS concepts behind your PR's code as short study notes, as a PR comment or Markdown files."
+    }
+  ]
+}

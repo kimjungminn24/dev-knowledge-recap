@@ -30,7 +30,7 @@ Each note points back to the code with a single file line.
 ## Flow
 
 ```
-/dev-knowledge-recap
+/dev-knowledge-recap:recap
   1. Quick checks   main context: SHA check, diff stat, session questions
   2. Analyze        subagent: read selected files, pick concepts, write
   3. Publish        main context: PR comment and/or docs files
@@ -111,6 +111,13 @@ and a large game feature diff went past 15k. Reading the diff is the main cost, 
 
 Why not `context: fork`: a forked skill does not see the current conversation, so it would lose the questions
 the developer asked. The skill stays in the main context long enough to write those down, then hands off to a subagent.
+
+## Packaging
+
+The repo is both a Claude Code plugin and a one-plugin marketplace.
+`.claude-plugin/plugin.json` describes the plugin, `.claude-plugin/marketplace.json` lists it with `"source": "./"`,
+and the skill lives at `skills/recap/SKILL.md`. Plugin skills are namespaced, so it runs as `/dev-knowledge-recap:recap`.
+Copied in by hand, it runs as `/recap`.
 
 ## Storage
 
