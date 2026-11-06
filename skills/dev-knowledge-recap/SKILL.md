@@ -24,7 +24,7 @@ Parse `$ARGUMENTS`. Missing values fall back to `.dev-knowledge-recap.yml` in th
 
 If `--target` is not given and the config has no `target`, ask the user before doing anything else
 (use AskUserQuestion if available) with these choices:
-- `pr` — post as a PR comment (share with reviewers)
+- `pr` — post as a PR comment
 - `docs` — save Markdown files under `docs_dir` (personal/project record)
 - `both` — do both
 
