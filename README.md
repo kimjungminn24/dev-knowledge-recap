@@ -46,6 +46,8 @@ Each concept opens into four parts.
 
 </details>
 
+See a real one on [PR #1](https://github.com/kimjungminn24/dev-knowledge-recap/pull/1#issuecomment-6677578057) of this repo, which the plugin wrote about its own hook script.
+
 It goes one level below the API. `Promise.all` becomes a note on concurrency and the event loop. `@Transactional` becomes a note on isolation levels.
 
 ## Install

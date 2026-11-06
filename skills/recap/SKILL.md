@@ -88,6 +88,10 @@ Every section is a bullet list, except trade-offs, which is a table with one or 
 
 `--depth` applies to the PR comment and to docs files alike.
 
+Stick to the counts in the table. Three principle bullets is the maximum, not a target.
+Inside a table cell, write a literal `|` as `\|`, even inside backticks. GitHub splits cells on it otherwise.
+The summary line under `<details>` names at most two category tags.
+
 ### 2d. Writing style
 This matters more than anything else in the output. It must read like a person wrote it.
 
