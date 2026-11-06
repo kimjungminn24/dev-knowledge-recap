@@ -1,6 +1,9 @@
 {
   "name": "dev-knowledge-recap",
-  "owner": { "name": "kimjungminn24" },
+  "description": "Study notes on the CS behind your PRs, for Claude Code.",
+  "owner": {
+    "name": "kimjungminn24"
+  },
   "plugins": [
     {
       "name": "dev-knowledge-recap",
