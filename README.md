@@ -10,7 +10,7 @@ AI랑 같이 작업한 PR에서, 리뷰하는 사람도 알아두면 좋을 개�
 /dev-knowledge-recap --target both --lang ko --depth summary
 ```
 
-- `--target`: `pr`(PR 댓글), `docs`(문서 저장), `both`
+- `--target`: `pr`(PR 댓글), `docs`(문서 저장), `both`. 생략하면 실행할 때 어디에 남길지 물어봅니다.
 - `--lang`: `ko`, `en`
 - `--depth`: `detailed`, `summary`, `concepts`
 

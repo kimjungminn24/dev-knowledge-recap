@@ -58,13 +58,27 @@
 
 | 옵션 | 값 | 기본값 | 설명 |
 |---|---|---|---|
-| `--target` | `pr` / `docs` / `both` | `pr` | 저장 위치 |
+| `--target` | `pr` / `docs` / `both` | 실행 시 선택 | 저장 위치 |
 | `--lang` | `ko` / `en` | `ko` | 출력 언어 |
 | `--depth` | `detailed` / `summary` / `concepts` | `summary` | 설명 깊이 |
 | `--pr` | 번호 | 현재 브랜치의 열린 PR | 대상 PR |
 | `--base` | 브랜치 | 기본 브랜치 | diff 기준 |
 | `--max` | 1–10 | `5` | 최대 개념 수 |
 | `--dry-run` | — | off | 게시하지 않고 결과만 출력 |
+
+### 저장 위치 선택
+
+`--target`을 안 주고 설정 파일에도 없으면, 실행할 때 어디에 남길지 먼저 물어본다.
+
+```
+어디에 기록할까요?
+  1) PR 댓글   - 리뷰어와 공유
+  2) Docs (md) - docs/dev-knowledge/ 에 저장
+  3) 둘 다
+```
+
+매번 묻는 게 귀찮으면 `.dev-knowledge-recap.yml`에 `target`을 적어두면 된다.
+(예: 개인 프로젝트는 `both`, 팀 프로젝트는 `docs`)
 
 ### 역할 구분
 
