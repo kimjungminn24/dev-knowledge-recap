@@ -1,0 +1,32 @@
+# Copy to .github/workflows/dev-knowledge-recap.yml in your repo.
+# Needs an ANTHROPIC_API_KEY secret (Settings > Secrets and variables > Actions).
+# GitHub does not pass secrets to PRs from forks, so those runs are skipped.
+name: dev-knowledge-recap
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  recap:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the skill diffs against the base branch
+
+      - uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          plugin_marketplaces: "https://github.com/kimjungminn24/dev-knowledge-recap.git"
+          plugins: "dev-knowledge-recap@dev-knowledge-recap"
+          prompt: "/dev-knowledge-recap:recap --auto --target pr --pr ${{ github.event.pull_request.number }} --base origin/${{ github.base_ref }}"
+          claude_args: '--allowedTools "Bash(git diff:*),Bash(git log:*),Bash(git rev-parse:*),Bash(git merge-base:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*)"'

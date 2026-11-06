@@ -23,12 +23,24 @@ Read `$ARGUMENTS`. Missing values come from `.dev-knowledge-recap.yml` in the re
 | `--lang` | `auto` or a language code | `auto` |
 | `--depth` | `concepts`, `summary`, `detailed` | `summary` |
 | `--max` | 1 to 5 | 2 |
-| `--pr`, `--base` | | open PR of this branch, default branch |
+| `--pr` | number or PR URL | open PR of this branch |
+| `--base` | branch | the PR's base, else the default branch |
 | `--dry-run` | | off |
+| `--auto` | | off. Set by the hook and the GitHub Action |
 
-Config only: `docs_dir` (default `docs/dev-knowledge`), `exclude_paths`, `categories`.
+Config only: `docs_dir` (default `docs/dev-knowledge`), `exclude_paths`, `categories`,
+`auto` (default `true`; `false` turns off the hook that runs this after a PR is created).
 
 If no target is set, ask first with three choices: PR comment, docs files, both.
+
+### Automatic runs (`--auto`)
+
+The plugin's hook adds `--auto` right after Claude opens a PR, and the GitHub Action passes it on every push.
+- Keep it quiet: no preamble, and a one-line report at the end.
+- If no target is set, ask once. Then offer to save the answer as `target` in `.dev-knowledge-recap.yml`
+  so later runs do not ask.
+- If there is no terminal user to ask (CI), use `pr`.
+- If nothing is worth writing, say so in one line and stop.
 
 `auto` language means the language of the PR title and body. With no PR, use English.
 

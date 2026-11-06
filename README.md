@@ -106,6 +106,22 @@ depth: summary
 max: 2
 ```
 
+## Run it automatically
+
+You do not have to remember the command. There are two ways to have it run on its own.
+
+**In Claude Code.** The plugin comes with a hook. When Claude opens a PR for you, with `gh pr create` or the GitHub MCP tool, it runs the recap right after. Nothing to set up.
+
+To turn it off in a repo, add this to `.dev-knowledge-recap.yml`:
+
+```yaml
+auto: false
+```
+
+**On GitHub.** Copy [`examples/github-action.yml`](examples/github-action.yml) to `.github/workflows/` and add an `ANTHROPIC_API_KEY` secret. Every PR gets a comment when it opens, and the comment updates when you push.
+
+The Action only sees the diff, so it cannot use the questions you asked Claude while working. The hook can.
+
 ## Building a knowledge base
 
 With `--target docs`, each concept gets its own file:

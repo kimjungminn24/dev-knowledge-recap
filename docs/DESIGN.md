@@ -119,6 +119,23 @@ The repo is both a Claude Code plugin and a one-plugin marketplace.
 and the skill lives at `skills/recap/SKILL.md`. Plugin skills are namespaced, so it runs as `/dev-knowledge-recap:recap`.
 Copied in by hand, it runs as `/recap`.
 
+## Automatic runs
+
+| | Claude Code hook | GitHub Action |
+|---|---|---|
+| Trigger | Claude creates a PR (`gh pr create` or `mcp__github__create_pull_request`) | PR opened or pushed to |
+| Files | `hooks/hooks.json`, `scripts/on-pr.sh` | `examples/github-action.yml` |
+| Sees session questions | Yes | No, diff only |
+| Cost | Your Claude Code session | `ANTHROPIC_API_KEY` |
+| Turn off | `auto: false` in config, or `DEV_KNOWLEDGE_RECAP_AUTO=off` | Remove the workflow |
+
+The hook is a PostToolUse command. It looks for a PR URL in the tool result and, if it finds one, adds a short
+instruction for Claude to run the skill with `--auto`. No URL means the PR was not created, so it does nothing.
+The script uses only bash and grep so it works without jq or Python.
+
+With `--auto` the skill stays quiet. If no target is set it asks once and offers to save the answer to the config.
+In CI there is nobody to ask, so the Action passes `--target pr`.
+
 ## Storage
 
 PR comment
