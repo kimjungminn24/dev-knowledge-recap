@@ -1,110 +1,107 @@
 ---
 name: dev-knowledge-recap
-description: Pick out the CS and software engineering concepts underlying the current branch's changes (diff + AI session context) and write them up as structured study notes - principle, trade-offs, alternatives - as a PR comment and/or Markdown files under docs/. Use when the user runs /dev-knowledge-recap or asks for the dev knowledge behind a PR.
+description: Writes up the CS concepts behind the current PR's code as short study notes, posted as a PR comment or saved under docs/. Use for /dev-knowledge-recap.
+argument-hint: "[--target pr|docs|both] [--lang auto|en|ko] [--depth concepts|summary|detailed] [--max N] [--dry-run]"
+allowed-tools: Bash(git diff *) Bash(git log *) Bash(git rev-parse *) Bash(git merge-base *)
 ---
 
 # dev-knowledge-recap
 
-Write up the **CS / engineering knowledge underneath this PR's code**.
+Write up the CS and engineering knowledge underneath this PR's code.
 
-This is NOT:
-- a code review
-- a summary of what changed (that's the PR description's job)
-- API usage docs ("call `Promise.all` with an array…")
-
-Go one level below the API: `Promise.all` -> concurrency vs. parallelism, event loop.
-`invalidateQueries` -> cache consistency strategies. `@Transactional` -> isolation levels.
+Do not review the code, summarize the change, or explain API usage. Go one level below the API.
+`Promise.all` leads to concurrency vs. parallelism. `invalidateQueries` leads to cache consistency.
+`@Transactional` leads to isolation levels.
 
 ## Arguments
 
-Parse `$ARGUMENTS`. Missing values fall back to `.dev-knowledge-recap.yml` in the repo root, then to defaults.
+Read `$ARGUMENTS`. Missing values come from `.dev-knowledge-recap.yml` in the repo root, then the defaults below.
 
 | arg | values | default |
 |---|---|---|
-| `--target` | `pr` \| `docs` \| `both` | ask |
-| `--lang` | any language code (`en`, `ko`, `ja`, …) | `auto` |
-| `--depth` | `concepts` \| `summary` \| `detailed` | `summary` |
-| `--pr` | number | open PR of current branch |
-| `--base` | branch | repo default branch |
-| `--max` | 1–10 | 3 |
-| `--dry-run` | flag | off |
+| `--target` | `pr`, `docs`, `both` | ask |
+| `--lang` | `auto` or a language code | `auto` |
+| `--depth` | `concepts`, `summary`, `detailed` | `summary` |
+| `--max` | 1 to 5 | 2 |
+| `--pr`, `--base` | | open PR of this branch, default branch |
+| `--dry-run` | | off |
 
-Config-only keys: `docs_dir` (default `docs/dev-knowledge`), `exclude_paths`, `categories`.
+Config only: `docs_dir` (default `docs/dev-knowledge`), `exclude_paths`, `categories`.
 
-**Target.** If neither the args nor the config set it, ask before doing anything else
-(use AskUserQuestion if available): `pr` (PR comment), `docs` (Markdown files under `docs_dir`), `both`.
+If no target is set, ask first with three choices: PR comment, docs files, both.
 
-**Language.** `auto` = the language of the PR title/body; if there is no PR or it's unclear, English.
-Translate section headings too. Keep code identifiers and established terms (e.g. "write-through") as-is.
+`auto` language means the language of the PR title and body. With no PR, use English.
 
-## Procedure
+## Step 1. Quick checks (main context)
 
-### 1. Collect
-- `git diff <base>...HEAD`, skipping lock files, generated code, binaries and `exclude_paths`.
-- `git log <base>..HEAD`.
-- Questions the developer asked in this session ("why…", "what is…"), if any.
-- `{docs_dir}/README.md` index, if it exists.
+1. Resolve `base` and `head` (`git rev-parse HEAD`).
+2. If posting to a PR and its existing comment starts with `<!-- dev-knowledge-recap sha=<head> -->`, stop and say it is already up to date.
+3. Run `git diff --stat -w <base>...HEAD`, dropping the default excludes and `exclude_paths`.
+   If nothing is left, stop and say there is nothing to write up.
+4. Write down up to 5 questions the developer asked in this session, one short line each.
+   The subagent in step 2 cannot see this conversation, so this list is the only way it learns them.
 
-### 2. Find the underlying concepts
-For each meaningful construct in the diff, ask "what CS / engineering principle makes this work or matter?"
-Record `slug`, `title`, `category`, `seen_in` (file paths from the diff).
-Drop anything with no code in the diff to point to.
+Default excludes: lock files, images, fonts, 3D and media assets, `*.import`, generated or vendored code,
+minified files, snapshots, tests, Markdown docs, CHANGELOG.
 
-Categories: `concurrency`, `caching`, `data-structures`, `algorithms`, `databases`, `networking`,
-`os`, `security`, `type-systems`, `design-patterns`, `architecture`, `testing`.
+## Step 2. Analyze in a subagent
 
-### 3. Select
-Skip: API how-tos, renames/formatting, boilerplate, basic syntax, and anything describing the change itself.
+Start one subagent with the Agent tool (general-purpose, model `sonnet`). Pass it base, head, the options,
+the stat output, the question list, `docs_dir`, and the instructions in steps 2a to 2d.
+It returns the comment body and the content of each docs file. The diff never enters the main context.
+If the Agent tool is not available, do 2a to 2d yourself.
 
-Rank by:
-1. the developer asked about it in this session
-2. first time the concept appears in the repo
-3. foundational CS (the kind of thing asked in interviews)
-4. used across several files
+### 2a. Read only what matters
+- From the stat and `git log --format=%s <base>..HEAD`, pick at most 5 files likely to hold a concept:
+  new dependencies, new APIs, config, infra, concurrency, storage, security.
+- Read each with `git diff -U1 -w <base>...HEAD -- <file>`. Stop at 200 lines per file.
+- For dedupe, read only `{docs_dir}/README.md`. Never open individual docs files here.
 
-Already in docs -> don't rewrite it; in the PR comment, link to the existing doc.
-Keep the top `--max`. If nothing worthwhile is left, publish nothing and say so. Never pad.
+### 2b. Pick concepts
+Rank by: asked in the session, first time in the repo, foundational CS, used in several files.
+Drop anything with no code to point to. Already in the index means link it, do not rewrite it.
+Keep the top `--max`. If nothing is worth it, return nothing. Never pad.
 
-### 4. Write
-Notes, not prose. No conversational tone, no "you asked…", no session transcripts.
-Use `templates/pr-comment.md` and `templates/knowledge-doc.md`.
+### 2c. Sections
+Every section is a bullet list, except trade-offs, which is a table with one or two rows.
 
-Every section is a bullet list, except Trade-offs (a small table).
+| Section | Content | concepts | summary | detailed |
+|---|---|---|---|---|
+| Concept | 1 or 2 bullets: what it is | yes | yes | yes |
+| Principle | 2 or 3 bullets: how it works and how this code uses it | | yes | yes |
+| Trade-offs | pros and cons table | | yes | yes |
+| Alternatives | up to 2 bullets, `name`: when to use it | | yes | yes |
+| Common pitfalls | bullets | | | yes |
+| Further reading | official docs or well-known references | | | yes |
 
-| Section | Content |
-|---|---|
-| Concept | 1–2 bullets: what it is |
-| Principle | 2–3 bullets: how it works, and how this code uses it |
-| Trade-offs | pros / cons table, 1–2 rows |
-| Alternatives | up to 2 bullets: `name`: when to use it |
-| Common pitfalls | bullets (`detailed` only) |
-| Further reading | official docs / well-known references (`detailed` only) |
+`--depth` applies to the PR comment and to docs files alike.
 
-| depth | sections |
-|---|---|
-| `concepts` | Concept |
-| `summary` | Concept, Principle, Trade-offs, Alternatives |
-| `detailed` | summary + Common pitfalls + Further reading |
+### 2d. Writing style
+This matters more than anything else in the output. It must read like a person wrote it.
 
-PR comment layout (see `templates/pr-comment.md`):
-- Header `### 📚 Dev knowledge in this PR`, then one line: category tags + concept count.
-- Each concept in a collapsed `<details>`. `<summary>` = **title** — a one-line hook (under ~8 words),
-  so the collapsed comment reads as a short list.
-- Inside: a blank line and `<br>` after `<summary>` (GitHub needs the blank line to render Markdown),
-  then the sections, then `<sub>📄 file paths</sub>` last.
-- Footer: one `<sub>` line. No other headings, emoji or decoration.
-- Docs files don't use `<details>`; sections are `##` headings.
+- Never use middle dots (·), em or en dashes, or arrows (→, ->). Use a comma, a colon, or a new sentence.
+- Write full short sentences, one idea per bullet. Explain a term the first time it appears.
+- Korean: plain declarative sentences ending in "~다". No noun-form endings like "~됨", "~음", "~필요".
+  No "~해요". Keep established terms in English (SIGTERM, write-through).
+- English: plain sentences. No marketing tone, no filler.
+- No conversational lines, no "you asked", no session transcripts. Remove secrets and internal hostnames.
 
-Docs files are always written at `detailed` depth; `--depth` applies to the PR comment.
-Strip secrets, tokens and internal hostnames.
+Bad: `kill -9`(SIGKILL)는 가로챌 수 없음 → 요청 유실, DB 연결 정리 안 됨
+Good: `kill -9`는 SIGKILL을 보낸다. 프로세스가 이 신호를 막을 수 없어서 처리 중이던 요청이 끊긴다.
 
-### 5. Publish
+Bad: Fails fast → one rejection rejects all
+Good: If one promise rejects, the whole call rejects right away.
+
+## Step 3. Publish (main context)
+
 - `--dry-run`: print only.
-- **pr**: the body starts with `<!-- dev-knowledge-recap -->`. If a comment with that marker already
-  exists on the PR, edit it instead of posting a new one. Prefer GitHub MCP tools, then `gh`.
+- PR: use `templates/pr-comment.md`. The first line is `<!-- dev-knowledge-recap sha=<head> -->`.
+  If a comment with this marker exists, edit it. Prefer GitHub MCP tools, then `gh`.
   If both fail, print the body and say how to post it.
-- **docs**: create `{docs_dir}/{slug}.md`, or for an existing slug append the PR to "Seen in this project".
-  Update `{docs_dir}/README.md`. Ask before committing.
-- **both**: docs first, then link each concept in the comment to its doc.
+- Docs: use `templates/knowledge-doc.md`. A new slug gets a new file. An existing slug only gets the PR added
+  under "Seen in this project". Add one line per new concept to `{docs_dir}/README.md` (`templates/index.md`).
+  Ask before committing.
+- Both: docs first, then link each concept in the comment to its file.
+- Read a template only for the target you are writing.
 
-End with a short report: concepts written, files touched, comment URL.
+End with a short report: concepts written, files touched, comment link.

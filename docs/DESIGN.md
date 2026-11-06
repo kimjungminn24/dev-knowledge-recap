@@ -1,128 +1,146 @@
-# dev-knowledge-recap — Design
+# dev-knowledge-recap design
 
 ## Problem
 
-When AI writes most of the code, it's easy to ship things you don't fully understand. The PR records *what* changed, but not the knowledge needed to understand *why it works*.
+When AI writes most of the code, it is easy to ship things you do not fully understand.
+The PR records what changed. It does not record the knowledge you need to see why it works.
 
-Existing tools cover nearby ground but not this:
+Nearby tools cover other ground.
 
 | Tool | Focus |
 |---|---|
-| CodeRabbit, PR-Agent, Greptile | Code review, change summaries |
+| CodeRabbit, PR-Agent, Greptile | Code review and change summaries |
 | Copilot | Explaining code on request |
 | PR description | What changed and why |
 
-**Goal:** for each PR, write up the CS / engineering concepts underneath the code as short, structured study notes.
+Goal: for each PR, write up the CS and engineering concepts under the code as short study notes.
 
 ## Scope
 
 | In | Out |
 |---|---|
-| Principles below the API (concurrency, cache consistency, isolation levels, indexing…) | API how-tos |
+| Principles below the API: concurrency, cache consistency, isolation levels, indexing | API how-tos |
 | Trade-offs and alternatives | Summary of the change |
 | Concepts the developer asked about while working with AI | Code review, bugs, style |
 | | Basic syntax, renames, boilerplate |
 
-The PR description and review already cover what changed. This tool only adds the knowledge layer, so the two don't overlap. Each note points back to the code with a single "Seen in `<file>`" line.
+The PR description and the review already cover what changed, so this tool only adds the knowledge layer.
+Each note points back to the code with a single file line.
 
 ## Flow
 
 ```
 /dev-knowledge-recap
-  1. Collect   diff, commits, session questions, existing docs index
-  2. Find      the principle under each meaningful construct
-  3. Select    rank, cap at --max, drop if nothing worthwhile
-  4. Write     notes: principle / trade-offs / alternatives
-  5. Publish   PR comment and/or docs files
+  1. Quick checks   main context: SHA check, diff stat, session questions
+  2. Analyze        subagent: read selected files, pick concepts, write
+  3. Publish        main context: PR comment and/or docs files
 ```
 
 ## Options
 
 | Option | Values | Default | Notes |
 |---|---|---|---|
-| `--target` | `pr` / `docs` / `both` | ask | Asked at run time if not set in args or config |
-| `--lang` | any language code | `auto` | `auto` follows the PR's language, falls back to English |
-| `--depth` | `concepts` / `summary` / `detailed` | `summary` | Applies to the PR comment; docs are always `detailed` |
-| `--max` | 1–10 | 3 | |
-| `--pr`, `--base` | | current PR / default branch | |
+| `--target` | `pr`, `docs`, `both` | ask | Asked at run time if not set |
+| `--lang` | `auto` or a language code | `auto` | Follows the PR language, English if there is no PR |
+| `--depth` | `concepts`, `summary`, `detailed` | `summary` | Same depth for the comment and docs |
+| `--max` | 1 to 5 | 2 | |
+| `--pr`, `--base` | | current PR, default branch | |
 | `--dry-run` | | off | |
 
-Config file `.dev-knowledge-recap.yml` (args win):
+Config file `.dev-knowledge-recap.yml`. Arguments win over it.
 
 ```yaml
 target: docs
 lang: en
 depth: summary
-max: 3
+max: 2
 docs_dir: docs/dev-knowledge
-exclude_paths: ["**/*.lock", "**/generated/**"]
+exclude_paths: ["**/generated/**"]
 categories: [concurrency, caching, databases]
 ```
 
-### Why `--lang` stays
-
-Primary audience is English-speaking, but teams write PRs in their own language. `auto` handles most cases with no flag; `--lang` is there to override. Section headings are translated; code identifiers and established terms are not.
-
 ## Selection
 
-1. Find the concept *below* the API. `Promise.all` -> concurrency vs. parallelism. `invalidateQueries` -> cache consistency. `@Transactional` -> isolation levels.
+1. Find the concept below the API. `Promise.all` leads to concurrency vs. parallelism.
 2. Drop anything without code in the diff to point to.
-3. Rank:
-   1. asked about in the session
-   2. first appearance in the repo
-   3. foundational CS (interview-level)
-   4. used across several files
-4. Already documented -> link, don't rewrite.
-5. Keep the top `--max`. Nothing worthwhile -> post nothing.
+3. Rank: asked in the session, first time in the repo, foundational CS, used in several files.
+4. If the docs index already has it, link it instead of rewriting it.
+5. Keep the top `--max`. If nothing is worth writing, post nothing.
 
-No numeric scoring. It's a priority order the model follows, not something code computes.
+This is a priority order the model follows. Nothing computes a score.
 
 ## Output format
 
-Notes, not prose. Each concept:
+Each concept has these sections. All of them are bullet lists except trade-offs.
 
-| Section | Format | `concepts` | `summary` | `detailed` |
+| Section | Format | concepts | summary | detailed |
 |---|---|---|---|---|
-| Concept | 1–2 bullets | ✓ | ✓ | ✓ |
-| Principle | 2–3 bullets | | ✓ | ✓ |
-| Trade-offs | pros / cons table, 1–2 rows | | ✓ | ✓ |
-| Alternatives | up to 2 bullets, `name`: when | | ✓ | ✓ |
-| Common pitfalls | bullets | | | ✓ |
-| Further reading | links | | | ✓ |
+| Concept | 1 or 2 bullets | yes | yes | yes |
+| Principle | 2 or 3 bullets | | yes | yes |
+| Trade-offs | table, 1 or 2 rows | | yes | yes |
+| Alternatives | up to 2 bullets, `name`: when | | yes | yes |
+| Common pitfalls | bullets | | | yes |
+| Further reading | links | | | yes |
 
-PR comments are collapsed by default: each concept is a `<details>` block whose summary line is the title plus a one-line hook. Closed, the comment is a 3-line list; reviewers open what they care about.
+In a PR comment each concept is a collapsed `<details>` block. The summary line is the title and a short hook,
+so the closed comment reads as a short list.
 
-Examples: [`pr-comment.md`](../skills/dev-knowledge-recap/templates/pr-comment.md), [`knowledge-doc.md`](../skills/dev-knowledge-recap/templates/knowledge-doc.md).
+## Writing style
+
+The first drafts read like AI output, and the Korean was hard to follow. The rules:
+
+- No middle dots, em or en dashes, or arrows. Use commas, colons, or a new sentence.
+- Full short sentences, one idea per bullet. Explain a term the first time.
+- Korean ends sentences with "~다". No clipped noun endings such as "~됨" or "~음", and no "~해요".
+- No conversational lines and no session transcripts.
+
+## Token budget
+
+Measured on real PRs: `SKILL.md` is about 1.5k tokens, a small infra PR diff is about 3k,
+and a large game feature diff went past 15k. Reading the diff is the main cost, so most savings come from there.
+
+| Where | How |
+|---|---|
+| Skip the run | Stop if the comment marker already has the current head SHA. Stop if only docs, assets or tests changed |
+| Read less diff | Start from `--stat` and commit subjects, then read at most 5 files with `-U1 -w`, 200 lines each |
+| Excludes | Lock files, assets, generated code, tests and Markdown are skipped by default |
+| Dedupe | Read only the docs index, never the individual docs files |
+| Main context | Analysis runs in a subagent on `sonnet`, so the diff never enters the main conversation |
+| Output | `--max` defaults to 2. Docs use the same depth as the comment |
+| Loading | Short frontmatter description. Templates are skeletons and only the one for the target is read |
+
+Why not `context: fork`: a forked skill does not see the current conversation, so it would lose the questions
+the developer asked. The skill stays in the main context long enough to write those down, then hands off to a subagent.
 
 ## Storage
 
-**PR comment**
-- Starts with `<!-- dev-knowledge-recap -->`; reruns edit the existing comment.
-- GitHub MCP, then `gh`, then print the body for manual posting.
+PR comment
+- First line `<!-- dev-knowledge-recap sha=<head> -->`. Reruns edit this comment.
+- GitHub MCP first, then `gh`, then print the body for manual posting.
 
-**Docs**
+Docs
 ```
 docs/dev-knowledge/
-├── README.md                       index by category
-├── concurrency-vs-parallelism.md
-└── cache-consistency.md
+  README.md                       index, one line per concept
+  graceful-shutdown.md
+  health-check-rollback.md
 ```
-- Files are per concept, not per PR, so they build up into a CS notebook for the project.
-- Existing slug or alias -> append the PR to "Seen in this project" instead of creating a file.
-- Changes stay in the working tree; the user decides whether to commit.
+- One file per concept, not per PR, so the folder grows into a CS notebook for the project.
+- An existing slug only gets the new PR added under "Seen in this project".
+- Changes stay in the working tree. The user decides whether to commit.
 
 ## Edge cases
 
 | Case | Behavior |
 |---|---|
-| No open PR | `pr` target -> offer `docs` or `--dry-run` |
-| No session context | Work from the diff alone |
-| Very large diff | Focus on the most-changed files |
+| No open PR | Offer docs or a dry run |
+| No session questions | Work from the diff alone |
+| Very large diff | Read only the 5 most relevant files |
 | Nothing worth writing | Post nothing |
 | No GitHub access | Print the comment body |
 
 ## Roadmap
 
-- v0.1 — skill, PR/docs/both, depth levels, language auto-detect, marker-based updates
-- v0.2 — config file, `examples/` with real diffs
-- v0.3 — GitHub Action (diff-only, runs on PR open)
+- v0.1: skill, PR and docs targets, depth levels, language detection, SHA marker
+- v0.2: config file, examples from real PRs
+- v0.3: GitHub Action that runs on PR open from the diff alone
